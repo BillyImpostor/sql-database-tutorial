@@ -1,6 +1,6 @@
 # 📊 Praktikum Basis Data — Semester 2
 
-> Repositori dokumentasi yang berisi referensi kueri SQL dan tutorial dari mata kuliah praktikum Basis Data, yang berfokus pada operasi basis data menggunakan SQL.
+> Repositori dokumentasi yang berisi referensi *query* SQL dan tutorial dari mata kuliah praktikum Basis Data, yang berfokus pada operasi basis data menggunakan SQL.
 
 ---
 
