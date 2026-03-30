@@ -264,5 +264,42 @@ WHERE Department IS NULL;
 
 /* PERTEMUAN 5 */
 ---
+USE asprak;
+DESCRIBE mahasiswa;
+---
+
+---
+SELECT MAX(GPA), City
+FROM mahasiswa
+WHERE City = 'Jakarta';
+
+SELECT MIN(GPA), Department
+FROM mahasiswa
+WHERE Department = 'Computer';
+
+SELECT COUNT(Department)
+FROM mahasiswa
+WHERE Department = 'Computer';
+
+SELECT AVG(GPA), Department
+FROM mahasiswa
+WHERE Department = 'Math';
+
+SELECT Department, COUNT(*)
+FROM mahasiswa
+GROUP BY Department;
+
+SELECT City, COUNT(*)
+FROM mahasiswa
+GROUP BY City;
+
+SELECT City, COUNT(City)
+FROM mahasiswa
+WHERE Age < 20
+GROUP BY City;
+---
+
+/* PERTEMUAN 6 */
+---
 
 ---
