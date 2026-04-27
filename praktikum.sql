@@ -301,5 +301,205 @@ GROUP BY City;
 
 /* PERTEMUAN 6 */
 ---
+CREATE DATABASE office;
+USE office;
+---
+
+---
+CREATE TABLE IF NOT EXISTS jobs (
+     jobID INT AUTO_INCREMENT,
+     jobTitle VARCHAR(50) NOT NULL,
+     basicSalary DECIMAL(15, 2) NOT NULL,
+     PRIMARY KEY (jobID)
+);
+
+INSERT INTO jobs (jobTitle, basicSalary) VALUES
+    ('Producer', 20000.00),
+    ('Director', 15000.00),
+    ('Writer', 10000.00),
+    ('Actor', 9000.00),
+    ('Fans', 0.00),
+    ('Executive Producer', 22500.00),
+    ('Stunt Organizer', 7500.00),
+    ('VFX Artist', 7500.00),
+    ('Stuntman', 6000.00);
+---
+
+---
+CREATE TABLE IF NOT EXISTS employees (
+     employeeID INT AUTO_INCREMENT,
+     lastName VARCHAR(50) NOT NULL,
+     firstName VARCHAR(50) NOT NULL,
+     email VARCHAR(100) NOT NULL, 
+     reportsTo INT,
+     jobID INT, 
+     salary DECIMAL(15, 2),
+     PRIMARY KEY (employeeID),
+     FOREIGN KEY (jobID) REFERENCES jobs(jobID),
+     FOREIGN KEY (reportsTo) REFERENCES employees(employeeID)
+);
+
+INSERT INTO employees (lastName, firstName, email, reportsTo, jobID, salary) VALUES
+    ('Carter', 'John', 'carterj@mail.co', NULL, 1, 21500.00),
+    ('Travolta', 'John', 'travj@mail.co', NULL, 2, 19000.00),
+    ('Carter', 'Peggy', 'carterp@mail.co', NULL, 3, 10000.00),
+    ('Connor', 'John', 'connj@mail.co', NULL, 2, 16000.00),
+    ('Johnson', 'Rian', 'jrian@mail.co', NULL, 4, 15000.00),
+    ('Rogers', 'Steve', 'cap@mail.co', 3, 2, 17500.00),
+    ('Evans', 'Chris', 'evanc@mail.co', 3, 1, 25000.00),
+    ('Pratt', 'Chris', 'prc@mail.co', 1, 5, 100.00),
+    ('Hemsworth', 'Chris', 'lebowski@mail.co', 2, 3, 12000.00),
+    ('Hemsworth', 'Liam', 'hliam@mail.co', NULL, 4, 9500.00),
+    ('Feige', 'Kevin', 'kfeige@mail.co', NULL, 6, 27000.00),
+    ('Miller', 'George', 'travj@mail.co', NULL, NULL, NULL);
+---
+
+---
+CREATE DATABASE library;
+USE library;
+---
+
+---
+CREATE TABLE IF NOT EXISTS Books (
+     bookID INT AUTO_INCREMENT,
+     bookTitle VARCHAR(100) NOT NULL,
+     authorName VARCHAR(100) NOT NULL,
+     borrowedStatus VARCHAR(100) NOT NULL,
+     PRIMARY KEY (bookID)
+);
+
+INSERT INTO Books (bookTitle, authorName, borrowedStatus) VALUES
+    ('The Great Gatsby', 'F. Scott Fitzgerald', 'Available'),
+    ('To Kill a Mockingbird', 'Harper Lee', 'Borrowed'),
+    ('1984', 'George Orwell', 'Available'),
+    ('Pride and Prejudice', 'Jane Austen', 'Borrowed'),
+    ('The Catcher in the Rye', 'J.D. Salinger', 'Available'),
+    ('The Lord of the Rings', 'J.R.R. Tolkien', 'Available'),
+    ('The Hobbit', 'J.R.R. Tolkien', 'Borrowed'),
+    ('Moby Duck', 'Herman Melville', 'Available'),
+    ('War and Peace', 'Leo Tolstoy', 'Available'),
+    ('The Odyssey', 'Homer', 'Borrowed');
+---
+
+---
+CREATE TABLE IF NOT EXISTS User (
+     userID INT AUTO_INCREMENT,
+     userName VARCHAR(100) NOT NULL,
+     numberOfBorrowing INT NOT NULL,
+     numberOfReturning INT NOT NULL,
+     PRIMARY KEY (userID)
+);
+
+INSERT INTO User (userName, numberOfBorrowing, numberOfReturning) VALUES
+    ('Alice', 3, 2),
+    ('Bob', 5, 5),
+    ('Charlie', 2, 1),
+    ('David', 4, 3),
+    ('Eve', 1, 0),
+    ('Frank', 6, 6),
+    ('Grace', 0, 0),
+    ('Heidi', 3, 3),
+    ('Ivan', 2, 2),
+    ('Judy', 4, 4);
+---
+
+---
+CREATE TABLE IF NOT EXISTS Flow (
+     flowID INT AUTO_INCREMENT, 
+     userIDBorrowing INT NOT NULL,
+     bookIDBorrowed INT NOT NULL, 
+     borrowDate DATE NOT NULL,
+     returnDate DATE NOT NULL,
+     PRIMARY KEY (flowID),
+     FOREIGN KEY (userIDBorrowing) REFERENCES User(userID),
+     FOREIGN KEY (bookIDBorrowed) REFERENCES Books(bookID)
+);
+
+INSERT INTO Flow (userIDBorrowing, bookIDBorrowed, borrowDate, returnDate) VALUES
+    (1, 2, '2026-03-01', '2026-03-15'),
+    (2, 4, '2026-03-05', '2026-03-20'),
+    (3, 7, '2026-03-10', '2026-03-25'),
+    (4, 10, '2026-03-15', '2026-03-30'),
+    (5, 4, '2026-03-20', '2026-04-04'),
+    (6, 2, '2026-03-25', '2026-04-09'),
+    (7, 7, '2026-03-30', '2026-04-14'),
+    (8, 4, '2026-04-04', '2026-04-19'),
+    (9, 10, '2026-04-09', '2026-04-24'),
+    (10, 10, '2026-04-14', '2026-04-29');
+---
+
+---
+SELECT Books.bookTitle
+FROM Books
+JOIN Flow ON Books.bookID = Flow.bookIDBorrowed
+WHERE Books.borrowedStatus = 'Borrowed'
+AND Flow.borrowDate = DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+
+SELECT Books.bookTitle, Flow.userIDBorrowing
+FROM Books
+LEFT JOIN Flow ON Books.bookID = Flow.bookIDBorrowed
+AND Books.borrowedStatus = 'Borrowed';
+
+SELECT Books.bookTitle, User.userName 
+FROM Books
+LEFT JOIN Flow ON Books.bookID = Flow.userIDBorrowing
+LEFT JOIN User ON Flow.userIDBorrowing = User.userID
+UNION
+SELECT Books.bookTitle, User.userName 
+FROM Books
+RIGHT JOIN Flow ON Books.bookID = Flow.userIDBorrowing
+RIGHT JOIN User ON Flow.userIDBorrowing = User.userID;
+
+SELECT Books.bookTitle, User.userName
+FROM Books
+JOIN Flow ON Books.bookID = Flow.bookIDBorrowed
+JOIN User ON Flow.userIDBorrowing = User.userID
+WHERE Books.borrowedStatus = 'Borrowed'
+AND User.numberOfBorrowing > 3;
+---
+
+/* PERTEMUAN 7 */
+---
+SELECT bookTitle
+FROM Books
+WHERE borrowedStatus = 'Borrowed' AND bookID IN (
+    SELECT bookIDBorrowed
+    FROM Flow
+    WHERE borrowDate = DATE_SUB(CURDATE(), INTERVAL 8 DAY)
+  );
+---
+
+---
+SELECT Books.bookTitle, Flow.userIDBorrowing
+FROM Books
+JOIN Flow ON Books.bookID = Flow.bookIDBorrowed
+AND Books.borrowedStatus = 'Borrowed';
+
+SELECT B.bookTitle, F.userIDBorrowing
+FROM Books B, (SELECT userIDBorrowing, bookIDBorrowed FROM Flow) AS F
+WHERE B.bookID = F.bookIDBorrowed AND B.borrowedStatus = 'Borrowed';
+---
+
+---
+SELECT Flow.userIDBorrowing, Books.bookTitle
+FROM Books
+JOIN Flow ON Flow.bookIDBorrowed = Books.bookID
+AND Books.borrowedStatus = 'Borrowed';
+
+SELECT  F.userIDBorrowing, B.bookTitle
+FROM Books B, (SELECT userIDBorrowing, bookIDBorrowed FROM Flow) AS F
+WHERE F.bookIDBorrowed = B.bookID AND B.borrowedStatus = 'Borrowed';
+---
+
+---
+SELECT B.bookTitle, U.userName
+FROM Books B, (SELECT userIDBorrowing, bookIDBorrowed FROM Flow) AS F, User U
+WHERE F.bookIDBorrowed = B.bookID AND F.userIDBorrowing = U.userID
+AND B.borrowedStatus = 'Borrowed'
+AND U.numberOfBorrowing > 3;
+---
+
+/* PERTEMUAN 8 */
+---
 
 ---
