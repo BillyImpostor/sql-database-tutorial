@@ -501,5 +501,60 @@ AND U.numberOfBorrowing > 3;
 
 /* PERTEMUAN 8 */
 ---
+DELIMITER $$
+CREATE PROCEDURE CheckBookInfo(IN p_bookID INT)
+BEGIN
+    SELECT bookTitle, borrowedStatus
+    FROM Books
+    WHERE bookID = p_bookID;
+END $$
+DELIMITER ;
 
+CALL CheckBookInfo(4);
+---
+
+---
+DELIMITER $$
+CREATE PROCEDURE EvaluateMemberStatus(IN p_userID INT)
+BEGIN
+    DECLARE borrowingCount INT;
+
+    SELECT numberOfBorrowing INTO borrowingCount
+    FROM User
+    WHERE userID = p_userID;
+
+    IF borrowingCount > 7 THEN
+        SELECT 'Legendary Member' AS status;
+    ELSE
+        SELECT 'Standard Member' AS status;
+    END IF;
+END $$
+DELIMITER ;
+
+CALL EvaluateMemberStatus(3);
+---
+
+---
+DELIMITER $$
+CREATE PROCEDURE GetBookLocation(IN p_bookID INT)
+BEGIN
+    CASE
+    WHEN p_bookID BETWEEN 1 AND 10 THEN
+            SELECT 'Shelf 1: Top Collection' AS location;
+    WHEN p_bookID BETWEEN 11 AND 20 THEN 
+            SELECT 'Shelf 2: Literature' AS location;
+        ELSE 
+            SELECT 'Shelf 3: General Collection' AS location;
+    END CASE;
+END $$
+DELIMITER ;
+
+CALL GetBookLocation(13);
+
+DROP PROCEDURE IF EXISTS GetBookLocation;
+---
+
+/* PERTEMUAN 9 */
+---
+ 
 ---
