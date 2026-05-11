@@ -556,5 +556,85 @@ DROP PROCEDURE IF EXISTS GetBookLocation;
 
 /* PERTEMUAN 9 */
 ---
- 
+DELIMITER $$
+CREATE TRIGGER AfterUpdateFlow
+AFTER INSERT ON Flow
+FOR EACH ROW
+BEGIN
+    UPDATE Books
+    SET borrowedStatus = 'Borrowed'
+    WHERE bookID = NEW.bookIDBorrowed;
+
+    UPDATE User
+    SET numberOfBorrowing = numberOfBorrowing + 1
+    WHERE userID = NEW.userIDBorrowing;
+END $$
+DELIMITER ;
+
+INSERT INTO Flow (userIDBorrowing, bookIDBorrowed, borrowDate, returnDate) VALUES
+    (3, 1, '2026-05-01', '2026-05-15');
+SELECT * FROM Books;
+SELECT * FROM User;
+---
+
+---
+DELIMITER $$
+CREATE TRIGGER WarningStatusBook
+BEFORE INSERT ON Flow
+FOR EACH ROW
+BEGIN
+    DECLARE statusBook VARCHAR(20);
+
+    SELECT borrowedStatus INTO statusBook
+    FROM Books
+    WHERE bookID = NEW.bookIDBorrowed;
+
+    IF statusBook = 'Borrowed' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Buku sedang dipinjam atau tidak tersedia!';
+    END IF;
+END $$
+DELIMITER ;
+
+INSERT INTO Flow (userIDBorrowing, bookIDBorrowed, borrowDate, returnDate) VALUES
+    (4, 1, '2026-05-16', '2026-05-30');
+
+INSERT INTO Flow (userIDBorrowing, bookIDBorrowed, borrowDate, returnDate) VALUES
+    (5, 3, '2026-05-16', '2026-05-30');
+SELECT * FROM Books;
+SELECT * FROM User;
+---
+
+---
+DELIMITER $$
+CREATE TRIGGER AfterReturnBook
+AFTER UPDATE ON Flow
+FOR EACH ROW
+BEGIN
+    IF NEW.returnDate IS NOT NULL THEN
+        UPDATE Books
+        SET borrowedStatus = 'Available'
+        WHERE bookID = NEW.bookIDBorrowed;
+
+        UPDATE User
+        SET numberOfReturning = numberOfReturning + 1
+        WHERE userID = NEW.userIDBorrowing;
+    END IF;
+END $$
+DELIMITER ;
+
+UPDATE Flow
+SET returnDate = CURDATE()
+WHERE flowID = 4;
+
+SELECT * FROM Books;
+SELECT * FROM User;
+---
+
+---
+DROP TRIGGER IF EXISTS WarningBorrowing;
+---
+
+/* PERTEMUAN 10 */
+---
+
 ---
