@@ -1,13 +1,12 @@
 /* PERTEMUAN 1 */
 ---
 mysql -u root -p
-EXIT;
+exit;
 ---
 
 ---
 DROP TABLE nama_tabel;
 ---
-
 
 /* PERTEMUAN 2 */
 ---
@@ -636,5 +635,20 @@ DROP TRIGGER IF EXISTS WarningBorrowing;
 
 /* PERTEMUAN 10 */
 ---
+DELIMITER $$
+CREATE FUNCTION HitungHargaDiskon(harga_asli DECIMAL, diskon_persen INT) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE harga_akhir DECIMAL(10,2);
+    SET harga_akhir = harga_asli - (harga_asli * diskon_persen / 100);
+    RETURN harga_akhir;
+END $$
+DELIMITER ;
 
+SELECT HitungHargaDiskon(1000.00, 15) AS HargaSetelahDiskon;
+---
+
+---
+DROP FUNCTION IF EXISTS HitungHargaDiskon;
 ---
